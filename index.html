@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            transition: 0.25s;
+            overflow: hidden;
+        }
+        .light-theme {
+            background-color: rgb(240, 240, 240);
+            color: rgb(22, 22, 22);
+        }
+        .dark-theme {
+            background-color: rgb(22, 22, 22);
+            color: rgb(240, 240, 240);
+        }
+
+        /* Pulse animation */
+        #pulse {
+            position: absolute;
+            z-index: -10;
+            background-color: rgb(133, 133, 133);
+            height: 128px;
+            width: 128px;
+            margin-left: 50vw;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            visibility: hidden;
+        }
+
+        /* .light-theme #pulse {
+            animation: waterdrop-light 1.75s;
+        }
+
+        .dark-theme #pulse {
+            animation: waterdrop-dark 1.75s;
+        } */
+
+        @keyframes waterdrop-light {
+            0% {
+                height: 128px;
+                width: 128px;
+                visibility: visible;
+            }
+            100% {
+                height: 1600px;
+                width: 1600px;
+                background-color: rgb(240, 240, 240);
+            }
+        }
+
+        @keyframes waterdrop-dark {
+            0% {
+                height: 128px;
+                width: 128px;
+                visibility: visible;
+            }
+            100% {
+                height: 1600px;
+                width: 1600px;
+                background-color: rgb(22, 22, 22);
+            }
+        }
+
+        /* Location data element */
+        #location {
+            text-align: center;
+            font-size: 36pt;
+            font-family: 'Courier New', Courier, monospace;
+            height: 2.5em;
+            transform: translateY(-50%);
+            margin: 50vh auto 0 auto;
+
+            cursor: pointer;
+        }
+
+        #error {
+            margin-top: 10px;
+            font-size: 14pt;
+            color: rgb(128, 128, 128);
+            font-weight: bold;
+
+            visibility: hidden;
+        }
+
+        /* Theme button */
+        #button-theme {
+            /* background-color: rgb(211, 211, 211); */
+            height: 48px;
+            width: 48px;
+            bottom: 10px;
+            position: absolute;
+            right: 10px;
+            border-radius: 50%;
+            /* border: 3px solid rgb(80, 80, 80); */
+            
+            cursor: pointer;
+            transition: 0.5s;
+        }
+
+        /* Button Hover */
+        #button-theme:hover {transform: rotate(120deg);}
+        .light-theme #button-theme:hover {background-color: rgb(211, 211, 211);}
+        .dark-theme #button-theme:hover {background-color: rgb(49, 49, 49);}
+
+        #button-theme:hover {transform: rotate(120deg);}
+        .light-theme #button-theme:hover {background-color: rgb(211, 211, 211);}
+        .dark-theme #button-theme:hover {background-color: rgb(49, 49, 49);}
+
+        /* Button Active */
+        #button-theme:active {
+            transition: 0.1s;
+        }
+        .light-theme #button-theme:active {filter: brightness(80%);}
+        .dark-theme #button-theme:active {filter: brightness(135%);}
+
+        /* Sun Icon */
+        .sun {
+            height: 20px;
+            width: 20px;
+            margin: 14px 0 0 14px;
+            border-radius: 50%;
+        }
+        .light-theme .sun-color {background-color: rgb(80, 80, 80);}
+        .dark-theme .sun-color {background-color: rgb(240, 240, 240);}
+
+        .sunlight {
+            height: 8px;
+            width: 4px;
+            border-radius: 1px;
+            position: absolute;
+            transform: translate(8px, -9px);
+        }
+
+        .rotsixty {transform: translate(21px, -2px) rotate(60deg)}
+        .rotonetwenty {transform: translate(21px, 14px) rotate(120deg)}
+        .rotoneeighty {transform: translate(8px, 21px) rotate(180deg)}
+        .rottwoforty {transform: translate(-5px, 14px) rotate(240deg)}
+        .rotthreehundred {transform: translate(-5px, -2px) rotate(300deg)}
+
+        @keyframes pulse {
+            from {
+                transform: translateY(2px);
+            }
+        }
+    </style>
+</head>
+<body class="light-theme" id="body">
+    <!-- HTML -->
+    <!-- <table id="location">
+
+        <tr>
+            <td>
+                Latitude: 
+            </td>
+            <td id="lat">
+                ---
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                Longitude: 
+            </td>
+            <td id="long">
+                ---
+            </td>
+        </tr>
+
+    </table> -->
+    
+    <div id="pulse"></div>
+
+    <!-- Location info -->
+    <div id="location" onclick="updatePage()">
+        <div id="lat">
+            Latitude: ---
+        </div>
+        <div id="long">
+            Longitude: ---
+        </div>
+        <div id="error">
+            Please allow location access
+        </div>
+    </div>
+
+
+    <div id="button-theme" onclick="changeTheme()">
+        <div class="sun sun-color">
+            <div class="sunlight sun-color"></div>
+            <div class="sunlight sun-color rotsixty"></div>
+            <div class="sunlight sun-color rotonetwenty"></div>
+            <div class="sunlight sun-color rotoneeighty"></div>
+            <div class="sunlight sun-color rottwoforty"></div>
+            <div class="sunlight sun-color rotthreehundred"></div>
+        </div>
+    </div>
+
+
+    <!-- JS -->
+    <script>
+        var nav = window.navigator.geolocation;
+        var options = {
+            timeout: 1000,
+            maximumAge: 10000,
+            enableHighAccuracy: true
+        }
+
+        // HTML Elements
+        var elLocation = document.getElementById("location");
+        var elLat = document.getElementById("lat");
+        var elLong = document.getElementById("long");
+        var elError = document.getElementById("error");
+        var elBody = document.getElementById("body");
+        var elPulse = document.getElementById("pulse");
+
+        var darkTheme = false;
+
+        function updatePage() {
+            nav.getCurrentPosition(navHandler, errorHandler, options);
+        }
+
+
+        // nav.watchCurrentPosition(navHandler, errorHandler, options);
+
+        // Navigation Handler
+        function navHandler(position) {
+            console.log("Lat: " + position.coords.latitude + " Long: " + position.coords.longitude);
+
+            elLat.innerText = "Latitude: " + position.coords.latitude;
+            elLong.innerText = "Longitude: " + position.coords.longitude;
+            elError.style.visibility = "hidden";
+            
+            if(darkTheme == false) {
+                elPulse.style.animation = "waterdrop-light 1.75s"
+                timeout = setTimeout(function() {
+                    elPulse.style.animation = "none";
+                }, 1750);
+            } else {
+                elPulse.style.animation = "waterdrop-dark 1.75s"
+
+                timeout = setTimeout(function() {
+                    elPulse.style.animation = "none";
+                }, 1750);
+            }
+
+        }
+
+        // Error Handler
+        function errorHandler(error) {
+            console.log("Unable to retrieve position : error message " + error.message + " error code: " + error.code);
+
+            elError.style.visibility = "visible";
+        }
+
+
+        // Change themes
+        function changeTheme() {
+            if(darkTheme == false) {
+                darkTheme = true;
+                elBody.classList.add("dark-theme");
+                elBody.classList.remove("light-theme");
+                elPulse.style.animation = "none";
+            } else {
+                darkTheme = false;
+                elBody.classList.add("light-theme");
+                elBody.classList.remove("dark-theme");
+                elPulse.style.animation = "none";
+            }
+        }
+
+        updatePage();
+
+    </script>
+</body>
+</html>
